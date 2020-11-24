@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Розклад ПМ-19</title>
+        <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+    </head>
+    <body>
+        <h1>Розклад {{group.name}}</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%"></th>
+                    {% for i in range(days | length) %}
+                    <th style="width: 15%">{{days[i]}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson in range(table | length) %}
+                <tr>
+                    <th>{{time[lesson]}}</th>
+                    {% for day in range(table[lesson] | length) %}
+                        {% if table[lesson][day] %}
+                        <td class="lessontd">
+                            <div>
+                                <p class="classname">{{ table[lesson][day].name }}</p>
+                                <p>{{ table[lesson][day].teacher }}</p>
+                                <p>{{ table[lesson][day].lesson_type }} ауд. {{ table[lesson][day].classroom }}</p>
+                            </div>
+                        </td>
+                        {% else %}
+                        <td class="emptytd"></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </body>
+</html>
