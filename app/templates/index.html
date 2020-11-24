@@ -25,7 +25,9 @@
                             <div>
                                 <p class="classname">{{ table[lesson][day].name }}</p>
                                 <p>{{ table[lesson][day].teacher }}</p>
-                                <p>{{ table[lesson][day].lesson_type }} ауд. {{ table[lesson][day].classroom }}</p>
+                                {% if table[lesson][day].classroom %}
+                                    <p>[{{ table[lesson][day].lesson_type }}] ауд. {{ table[lesson][day].classroom }}</p>
+                                {% endif %}
                             </div>
                         </td>
                         {% else %}

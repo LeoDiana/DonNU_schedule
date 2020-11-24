@@ -2,6 +2,9 @@ from app import schedule_app as sapp
 from flask import render_template
 
 
+from app.schedule_from_docx import create_schedule
+
+
 @sapp.route('/')
 @sapp.route('/index')
 def index():
@@ -32,6 +35,11 @@ def index():
     pm_schedule[1][4] = Lesson('Мат аналіз', 'Трофименко О.Д.', 'пр', '307')
     pm_schedule[2][4] = Lesson('Мат аналіз', 'Трофименко О.Д.', 'пр', '307')
 
+
+    pm_schedule = create_schedule(filepath=r'D:\Git\DonNU_schedule\app\sch.docx')
+    print('**************'+pm_schedule[0][1].name)
+
+
     return render_template('index.html', group=group, table=pm_schedule, time=lessons_time, days=days)
 
 
@@ -41,4 +49,9 @@ class Lesson:
         self.teacher = teacher
         self.lesson_type = lesson_type
         self.classroom = classroom
+
+
+
+#sche = create_schedule('sch.docx')
+#print(sche)
 

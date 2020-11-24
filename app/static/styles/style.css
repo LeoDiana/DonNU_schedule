@@ -14,7 +14,7 @@ h1 {
 }
 
 tr {
-    height: 60px;
+    height: 70px;
 }
 
 p {
@@ -50,6 +50,7 @@ div {
     font-weight: 300;
     font-size: 0.9em;
     color: white;
+    min-height: 3em;
 }
 
 body {
