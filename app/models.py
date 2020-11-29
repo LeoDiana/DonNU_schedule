@@ -12,4 +12,4 @@ class Lesson(db.Model):
     lesson_time = db.Column(db.Integer)  # Номер пари у розкладі (1[0]-8[7])
 
     def __repr__(self):
-        return f'{self.day}/{self.lesson_time} | {self.name} | {self.group}'
+        return f'<{self.day}/{self.lesson_time} | {self.name} | {self.group}>'

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Розклад ПМ-19</title>
+        <title>Розклад {{schedule_for.name}}</title>
         <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
     </head>
     <body>
-        <h1>Розклад {{group.name}}</h1>
+        <h1>Розклад {{schedule_for.name}}</h1>
         <table>
             <thead>
                 <tr>
                     <th style="width: 10%"></th>
-                    {% for i in range(days | length) %}
-                    <th style="width: 15%">{{days[i]}}</th>
+                    {% for day in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'] %}
+                    <th style="width: 15%">{{day}}</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -24,7 +24,7 @@
                         <td class="lessontd">
                             <div>
                                 <p class="classname">{{ table[lesson][day].name }}</p>
-                                <p>{{ table[lesson][day].teacher }}</p>
+                                <p>{{ table[lesson][day].for_whom }}</p>
                                 {% if table[lesson][day].classroom %}
                                     <p>[{{ table[lesson][day].lesson_type }}] ауд. {{ table[lesson][day].classroom }}</p>
                                 {% endif %}

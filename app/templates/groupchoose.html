@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Розклад</title>
+        <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+    </head>
+    <body>
+        <h1>Оберіть розклад</h1>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="form-field">
+                {{ form.group.label }}
+                {{ form.group }}
+            </div>
+            {{ form.submit }}
+        </form>
+    </body>
+</html>

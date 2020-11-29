@@ -1,17 +1,20 @@
 from docx.api import Document
+from app.models import Lesson as Lesson_model
+from app import db
 
 
 
 class Lesson:
-    def __init__(self, name, teacher, lesson_type, classroom):
+    def __init__(self, name, for_whom, lesson_type, classroom):
         self.name = name
-        self.teacher = teacher
+        self.for_whom = for_whom
         self.lesson_type = lesson_type
         self.classroom = classroom
 
 
 folder = '../docx/'
 filename = '113+122_М_2 курс.docx'
+
 
 def create_empty_schedule():
     sch = []
@@ -21,6 +24,7 @@ def create_empty_schedule():
             day.append(None)
         sch.append(day)
     return sch
+
 
 def convert_day_to_int(day):
     day = ''.join(e for e in day if e.isalnum())
@@ -37,6 +41,7 @@ def convert_day_to_int(day):
     if day == 'Субота':
         return 5
     raise ValueError('Неправильний день тижня')
+
 
 def convert_lesson_to_int(lesson):
     lesson = lesson.replace('\n', '')
@@ -73,38 +78,86 @@ def clean_teacher(teacher):
     return teacher[:last+1]+'.'
 
 
-def create_schedule(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):#(filepath=folder+filename):
+def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):
     print(filepath)
     document = Document(filepath)
     table = document.tables[0]
-
-    group_1 = create_empty_schedule()
-    group_2 = create_empty_schedule()
+    group = ['', '']
 
     for i, row in enumerate(table.rows):
         text = []
 
         for cell in row.cells:
             text.append(cell.text)
-        #print(text)
 
+        if i == 0:
+            group = [text[2], text[6]]
         if i in [0, 1]:
             continue
 
         day = convert_day_to_int(text[0])
-        lesson = convert_lesson_to_int(text[1])
+        lesson_time = convert_lesson_to_int(text[1])
 
-        if text[2] == text[3]:#ДВВС
-            text[3] = text[4] = text[5] = ''
-        if text[4] == 'Microsoft Teams':
-            text[4] = 'Teams'
+        for i in range(2):
+            if text[2+4*i] == text[3+4*i]:  # ДВВС
+                text[3+4*i] = text[4+4*i] = text[5+4*i] = ''
+            if text[4+4*i] == 'Microsoft Teams':
+                text[4+4*i] = 'Teams'
 
-        if text[2]:
-            group_1[lesson][day] = Lesson(name=text[2], lesson_type=text[3],
-                                          classroom=text[4], teacher=clean_teacher(text[5]))
-    return group_1
+            if text[2+4*i]:
+                lesson = Lesson_model(day=day, lesson_time=lesson_time, group=group[i],
+                                      name=text[2+4*i], lesson_type=text[3+4*i],
+                                      room=text[4+4*i], teacher=clean_teacher(text[5+4*i]))
+                db.session.add(lesson)
+    db.session.commit()
 
 
-#print(create_schedule())
+def print_db():
+    print(Lesson_model.query.filter_by(name='Методи обчислень').all())
+
+
+def group_schedule(group):
+    schedule_list = Lesson_model.query.filter_by(group=group).all()
+    table_schedule = create_empty_schedule()
+    for lesson in schedule_list:
+        table_schedule[lesson.lesson_time][lesson.day] = Lesson(name=lesson.name,
+                                                                for_whom=lesson.teacher,
+                                                                lesson_type=lesson.lesson_type,
+                                                                classroom=lesson.room)
+    return table_schedule
+
+
+def teacher_schedule(teacher):
+    schedule_list = Lesson_model.query.filter_by(teacher=teacher).all()
+    table_schedule = create_empty_schedule()
+    for lesson in schedule_list:
+        print(lesson)
+        if table_schedule[lesson.lesson_time][lesson.day]:
+            if lesson.group not in table_schedule[lesson.lesson_time][lesson.day].for_whom:
+                table_schedule[lesson.lesson_time][lesson.day].for_whom.append(lesson.group)
+            continue
+
+        table_schedule[lesson.lesson_time][lesson.day] = Lesson(name=lesson.name,
+                                                                for_whom=[lesson.group],
+                                                                lesson_type=lesson.lesson_type,
+                                                                classroom=lesson.room)
+    return table_schedule
+
+
+def delete_db():
+    Lesson_model.query.delete()
+    db.session.commit()
+
+
+def teachers():
+    p = Lesson_model.query.with_entities(Lesson_model.teacher).distinct().all()
+    t_list = [t[0] for t in p if t[0]]
+    return t_list
+
+
+def groups():
+    p = Lesson_model.query.with_entities(Lesson_model.group).distinct().all()
+    g_list = [g[0] for g in p if g[0]]
+    return g_list
 
 
