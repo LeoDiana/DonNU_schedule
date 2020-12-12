@@ -1,18 +1,36 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Розклад</title>
-        <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
-    </head>
-    <body>
-        <h1>Оберіть розклад</h1>
-        <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
-            <div class="form-field">
-                {{ form.schedule_for.label }}
-                {{ form.schedule_for }}
-            </div>
-            {{ form.submit }}
-        </form>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='choose.js') }}"></script>
+
+</head>
+<body>
+    {{ form.hidden_tag() }}
+    <form method="post" action="{{ url_for('handle_data') }}" novalidate>
+        <select name="category1" id="category1">
+            <option value="">Оберіть варіант</option>
+            <option value="groups">групи</option>
+            <option value="teachers">викладача</option>
+        </select>
+        <select disabled="disabled" class="subcat" id="category2" name="category2">
+            <option value>Оберіть варіант</option>
+            <!-- Groups -->
+            <optgroup data-rel="groups">
+              {% for group in groups %}
+                <option value="{{group}}">{{group}}</option>
+              {% endfor %}
+            </optgroup>
+            <!-- Teachers -->
+            <optgroup data-rel="teachers">
+              {% for teacher in teachers %}
+                <option value="{{teacher}}">{{teacher}}</option>
+              {% endfor %}
+            </optgroup>
+        </select>
+      {{ form.submit }}
+    </form>
+</body>
 </html>
