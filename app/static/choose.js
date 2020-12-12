@@ -3,12 +3,19 @@ $(function(){
     var $cat = $("#category1"),
         $subcat = $(".subcat");
 
+    var optgroups = {};
 
     $subcat.each(function(i,v){
     	var $e = $(v);
     	var _id = $e.attr("id");
+			optgroups[_id] = {};
+			$e.find("optgroup").each(function(){
+      	var _r = $(this).data("rel");
+        $(this).find("option").addClass("is-dyn");
+      	optgroups[_id][_r] = $(this).html();
+			});
     });
-
+    $subcat.find("optgroup").remove();
 
     var _lastRel;
     $cat.on("change",function(){
@@ -22,6 +29,7 @@ $(function(){
         $subcat.each(function(){
         	var $el = $(this);
           var _id = $el.attr("id");
+          $el.append(optgroups[_id][_rel]);
         });
         $subcat.prop("disabled",false);
     });
