@@ -7,6 +7,10 @@ h1 {
     margin-bottom: auto;
 }
 
+.choose {
+    margin-top: 10%;
+}
+
 .classname {
     font-weight: 500;
     color: white;
@@ -40,7 +44,7 @@ th, td {
     border-spacing: 3px;
 }
 
-div {
+.lessondiv {
     background-color: darkslateblue;
     //background-color: slateblue;
     border-radius: 8px;
@@ -51,6 +55,39 @@ div {
     font-size: 0.9em;
     color: white;
     min-height: 3em;
+}
+
+select {
+    alignment: center;
+    align-self: center;
+    width: 400px;
+    border-radius: 8px;
+    font-size: 1.5em;
+    text-align-last: center;
+    horiz-align: center;
+    width: 100%;
+    font-family: "Montserrat Alternates", serif;
+
+}
+
+.selector {
+    horiz-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+input[name="submit"] {
+    font-size: 1.5em;
+    width: 60%;
+    margin-left: 20%;
+    margin-right: 20%;
+    border-radius: 8px;
+    background-color: #d0caec;
+    font-family: "Montserrat Alternates", serif;
+    font-weight: 500;
+    border-width: 1px;
 }
 
 body {

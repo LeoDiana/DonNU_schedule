@@ -22,7 +22,7 @@
                     {% for day in range(table[lesson] | length) %}
                         {% if table[lesson][day] %}
                         <td class="lessontd">
-                            <div>
+                            <div class="lessondiv">
                                 <p class="classname">{{ table[lesson][day].name }}</p>
                                 <p>{{ table[lesson][day].for_whom }}</p>
                                 {% if table[lesson][day].classroom %}
