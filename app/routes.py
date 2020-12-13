@@ -3,9 +3,7 @@ from flask import render_template, redirect, url_for, request
 from app.forms import ScheduleFor, group_name_transform
 
 from app.schedule_from_docx import group_schedule, teacher_schedule, groups, teachers
-
-lessons_time = ['8:00-9:20', '9:30-10:50', '11:20-12:40', '12:50-14:10',
-                '14:20-15:40', '15:50-17:10', '17:20-18:40', '18:50-20:10']
+from app.common_vars import lessons_time
 
 
 @sapp.route('/', methods=['GET', 'POST'])
