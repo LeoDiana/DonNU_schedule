@@ -10,6 +10,9 @@ class Lesson(db.Model):
     lesson_type = db.Column(db.String(10))  # Тип заняття [лек., пр., лаб., і т.д.]
     day = db.Column(db.Integer)  # День, у який проводиться пара (Понеділок[0]-Субота[5])
     lesson_time = db.Column(db.Integer)  # Номер пари у розкладі (1[0]-8[7])
+    teacher_event_id = db.Column(db.String(30))
+    group_event_id = db.Column(db.String(30))
+
 
     def __repr__(self):
         return f'<{self.day}/{self.lesson_time} | {self.name} | {self.group}>'

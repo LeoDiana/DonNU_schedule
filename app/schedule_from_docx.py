@@ -2,6 +2,7 @@ from docx.api import Document
 from app.models import Lesson as Lesson_model
 from app import db
 
+from app.googlecalendar import add_lesson
 
 
 class Lesson:
@@ -105,9 +106,31 @@ def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):
                 text[4+4*i] = 'Teams'
 
             if text[2+4*i]:
+                name = text[2+4*i]
+                teacher = clean_teacher(text[5+4*i])
+                lesson_type = text[3+4*i]
+                room = text[4+4*i]
+
+                group_event_id = add_lesson({
+                    'name': lesson_type + name,
+                    'when': lesson_time,
+                    'day': day,
+                    'where': room,
+                    'description': teacher
+                })
+                teacher_event_id = add_lesson({
+                    'name': lesson_type + name,
+                    'when': lesson_time,
+                    'day': day,
+                    'where': room,
+                    'description': group[i]
+                })
+
                 lesson = Lesson_model(day=day, lesson_time=lesson_time, group=group[i],
-                                      name=text[2+4*i], lesson_type=text[3+4*i],
-                                      room=text[4+4*i], teacher=clean_teacher(text[5+4*i]))
+                                      name=name, lesson_type=lesson_type,
+                                      room=room, teacher=teacher,
+                                      teacher_event_id=teacher_event_id,
+                                      group_event_id=group_event_id)
                 db.session.add(lesson)
     db.session.commit()
 
@@ -145,8 +168,12 @@ def teacher_schedule(teacher):
 
 
 def delete_db():
-    Lesson_model.query.delete()
-    db.session.commit()
+    #Lesson_model.query.delete()
+    #Event_model.query.delete()
+    #db.session.commit()
+    #db.create_all()
+    #db.session.commit()
+    pass
 
 
 def teachers():
@@ -161,3 +188,12 @@ def groups():
     return g_list
 
 
+if __name__ == '__main__':
+    #db.create_all()
+    #add_to_db_from_docx()
+    #add_lesson(example_lesson_2)
+    #delete_db()
+    #print(groups())
+    #print(event_list(True, 'Б19_д/113'))
+    #print(group_schedule('Б19_д/113'))
+    pass

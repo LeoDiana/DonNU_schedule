@@ -8,6 +8,8 @@ from google.auth.transport.requests import Request
 
 import datetime
 from app.common_vars import lessons_time
+#from app.schedule_from_docx import event_list
+from app.models import Lesson as Lesson_model
 from config import Config
 
 
@@ -33,17 +35,7 @@ example_lesson_2 = {
 }
 
 
-def add_lesson(lesson):
-    """
-    lesson in format:
-    {
-        'name': 'Мат. аналіз',
-        'when': 1,  # номер пари
-        'day': 1, #  0 - Понеділок, 6 - Неділя
-        'where': 'Teams',  # 'ауд. 412-Кристал'
-        'description': 'Трофименко О. Д.'  # додаткова інформація (ім'я викладача або група) 'ПМ/Б19'
-    }
-    """
+def google_service():
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -63,7 +55,23 @@ def add_lesson(lesson):
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('calendar', 'v3', credentials=creds)
+    return build('calendar', 'v3', credentials=creds)
+
+
+def add_lesson(lesson):
+    """
+    lesson in format:
+    {
+        'name': 'Мат. аналіз',
+        'when': 1,  # номер пари
+        'day': 1, #  0 - Понеділок, 6 - Неділя
+        'where': 'Teams',  # 'ауд. 412-Кристал'
+        'description': 'Трофименко О. Д.'  # додаткова інформація (ім'я викладача або група) 'Б19_д/113'
+    }
+    return: id of created event
+    """
+
+    service = google_service()
 
     start, end = date_time_for_event(lesson['day'], lesson['when'])
     event = {
@@ -98,32 +106,25 @@ def add_lesson(lesson):
     event = service.events().insert(calendarId=calendar_id, body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
     print(f'Event id: {event["id"]}')
+    return event["id"]
 
 
+def event_list(is_for_group, for_whom):
+    if is_for_group:
+        p = Lesson_model.query.filter_by(group=for_whom).all()
+        g_list = [g.group_event_id for g in p]
+    else:
+        p = Lesson_model.query.filter_by(teacher=for_whom).all()
+        g_list = [g.teacher_event_id for g in p]
+    return g_list
+
+
+#TODO confirm subscription by email
 def add_attendee(email):
     # will be db with even ids for each group, but now we have this:
-    events_id = ['60abh1fk9ckpp4pbtl62k29n6k', 'pvte22gcco7q7r5c1hdjfbp0fo']
+    events_id = event_list(True, 'Б19_д/113')
 
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                '../credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-
-    service = build('calendar', 'v3', credentials=creds)
+    service = google_service()
 
     for event_id in events_id:
         event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
