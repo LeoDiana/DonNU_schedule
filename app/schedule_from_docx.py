@@ -79,7 +79,7 @@ def clean_teacher(teacher):
     return teacher[:last+1]+'.'
 
 
-def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):
+def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\docx\111_2 курс.docx', groups_in_doc=1):
     print(filepath)
     document = Document(filepath)
     is_upper_week = False
@@ -94,14 +94,17 @@ def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):
                 text.append(cell.text)
 
             if i == 0:
-                group = [text[2], text[6]]
+                if groups_in_doc == 2:
+                    group = [text[2], text[6]]
+                else:
+                    group = [text[2]]
             if i in [0, 1]:
                 continue
 
             day = convert_day_to_int(text[0])
             lesson_time = convert_lesson_to_int(text[1])
 
-            for i in range(2):
+            for i in range(groups_in_doc):
                 if text[2+4*i] == text[3+4*i]:  # ДВВС
                     text[3+4*i] = text[4+4*i] = text[5+4*i] = ''
                 if text[4+4*i] == 'Microsoft Teams':
@@ -160,19 +163,25 @@ def group_schedule(group):
 
 def teacher_schedule(teacher):
     schedule_list = Lesson_model.query.filter_by(teacher=teacher).all()
-    table_schedule = create_empty_schedule()
+    table_schedule_upper = create_empty_schedule()
+    table_schedule_lower = create_empty_schedule()
     for lesson in schedule_list:
-        print(lesson)
-        if table_schedule[lesson.lesson_time][lesson.day]:
-            if lesson.group not in table_schedule[lesson.lesson_time][lesson.day].for_whom:
-                table_schedule[lesson.lesson_time][lesson.day].for_whom.append(lesson.group)
-            continue
+        new_lesson_model = Lesson(name=lesson.name, for_whom=[lesson.group],
+                                  lesson_type=lesson.lesson_type, classroom=lesson.room)
+        if lesson.is_upper_week:
+            if table_schedule_upper[lesson.lesson_time][lesson.day]:
+                if lesson.group not in table_schedule_upper[lesson.lesson_time][lesson.day].for_whom:
+                    table_schedule_upper[lesson.lesson_time][lesson.day].for_whom.append(lesson.group)
+                continue
+            table_schedule_upper[lesson.lesson_time][lesson.day] = new_lesson_model
+        else:
+            if table_schedule_lower[lesson.lesson_time][lesson.day]:
+                if lesson.group not in table_schedule_lower[lesson.lesson_time][lesson.day].for_whom:
+                    table_schedule_lower[lesson.lesson_time][lesson.day].for_whom.append(lesson.group)
+                continue
+            table_schedule_lower[lesson.lesson_time][lesson.day] = new_lesson_model
 
-        table_schedule[lesson.lesson_time][lesson.day] = Lesson(name=lesson.name,
-                                                                for_whom=[lesson.group],
-                                                                lesson_type=lesson.lesson_type,
-                                                                classroom=lesson.room)
-    return table_schedule
+    return table_schedule_upper, table_schedule_lower
 
 
 def delete_db():
@@ -198,7 +207,7 @@ def groups():
 
 if __name__ == '__main__':
     #db.create_all()
-    #add_to_db_from_docx()
+    add_to_db_from_docx()
     #add_lesson(example_lesson_2)
     #delete_db()
     #print(groups())
