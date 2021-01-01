@@ -4,6 +4,7 @@ from app.forms import ScheduleFor, group_name_transform
 
 from app.schedule_from_docx import group_schedule, teacher_schedule, groups, teachers
 from app.common_vars import lessons_time
+from app.googlecalendar import add_attendee
 
 
 @sapp.route('/', methods=['GET', 'POST'])
@@ -49,3 +50,11 @@ def teacher(teacher_name):
     return render_template('schedule.html', schedule_for=schedule_for,
                            upper_table=upper_schedule, lower_table=lower_schedule,
                            time=lessons_time)
+
+
+@sapp.route('/subscribe', methods=['POST'])
+def subscribe():
+    email = request.form['email']
+    schedule_for = request.form['schedule_for']
+    add_attendee(email, schedule_for)
+    return redirect('index')

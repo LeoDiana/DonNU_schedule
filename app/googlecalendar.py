@@ -49,7 +49,7 @@ def google_service():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                '../credentials.json', SCOPES)
+                r'D:\Git\DonNU_schedule\credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -110,8 +110,11 @@ def add_lesson(lesson):
     return event["id"]
 
 
-def event_list(is_for_group, for_whom):
+def event_list(for_whom):
+    is_for_group = for_whom.count('групи')
+
     if is_for_group:
+        for_whom = for_whom[for_whom.find(' ')+1:]
         p = Lesson_model.query.filter_by(group=for_whom).all()
         g_list = [g.group_event_id for g in p]
     else:
@@ -121,18 +124,18 @@ def event_list(is_for_group, for_whom):
 
 
 #TODO confirm subscription by email
-def add_attendee(email):
+def add_attendee(email, for_whom):
     # will be db with even ids for each group, but now we have this:
-    events_id = event_list(True, 'Б19_д/113')
+    events_id = event_list(for_whom)
 
     service = google_service()
 
     for event_id in events_id:
         event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
         if 'attendees' in event:
-            event['attendees'].append({'email': 'dianalyvytska@gmail.com'})
+            event['attendees'].append({'email': email})
         else:
-            event['attendees'] = [{'email': 'dianalyvytska@gmail.com'}]
+            event['attendees'] = [{'email': email}]
         updated_event = service.events().update(calendarId=calendar_id,
                                                 eventId=event_id,
                                                 body=event)\

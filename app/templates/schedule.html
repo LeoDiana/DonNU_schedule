@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
     <head>
         <title>Розклад {{schedule_for.name}}</title>
         <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
@@ -72,6 +72,12 @@
                 {% endfor %}
             </tbody>
         </table>
+        <form method="post" action="{{ url_for('subscribe') }}" novalidate>
+            <label for="subsemail">Підписатися на цей розклад в гугл календарі:</label><br>
+            <input type="email" name="email" id="subsemail" required />
+            <input type="hidden" name="schedule_for" value="{{schedule_for.name}}" />
+            <input type="submit" value="Підписатися" />
+        </form>
 
     </body>
 </html>
