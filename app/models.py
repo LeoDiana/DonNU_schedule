@@ -12,6 +12,7 @@ class Lesson(db.Model):
     lesson_time = db.Column(db.Integer)  # Номер пари у розкладі (1[0]-8[7])
     teacher_event_id = db.Column(db.String(30))
     group_event_id = db.Column(db.String(30))
+    is_upper_week = db.Column(db.Boolean)
 
 
     def __repr__(self):

@@ -67,6 +67,7 @@ def add_lesson(lesson):
         'day': 1, #  0 - Понеділок, 6 - Неділя
         'where': 'Teams',  # 'ауд. 412-Кристал'
         'description': 'Трофименко О. Д.'  # додаткова інформація (ім'я викладача або група) 'Б19_д/113'
+        'is_upper_week' True/False
     }
     return: id of created event
     """
@@ -87,7 +88,7 @@ def add_lesson(lesson):
             'timeZone': 'Europe/Kiev',
         },
         'recurrence': [
-            f'RRULE:FREQ=WEEKLY;COUNT={recurrence_for_event()}'
+            f'RRULE:FREQ=WEEKLY;COUNT={recurrence_for_event()};INTERVAL=2'
         ],
         """
         'attendees': [

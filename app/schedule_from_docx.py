@@ -82,56 +82,61 @@ def clean_teacher(teacher):
 def add_to_db_from_docx(filepath=r'D:\Git\DonNU_schedule\app\sch.docx'):
     print(filepath)
     document = Document(filepath)
-    table = document.tables[0]
-    group = ['', '']
+    is_upper_week = False
+    for table in document.tables:
+        is_upper_week = not is_upper_week
+        group = ['', '']
 
-    for i, row in enumerate(table.rows):
-        text = []
+        for i, row in enumerate(table.rows):
+            text = []
 
-        for cell in row.cells:
-            text.append(cell.text)
+            for cell in row.cells:
+                text.append(cell.text)
 
-        if i == 0:
-            group = [text[2], text[6]]
-        if i in [0, 1]:
-            continue
+            if i == 0:
+                group = [text[2], text[6]]
+            if i in [0, 1]:
+                continue
 
-        day = convert_day_to_int(text[0])
-        lesson_time = convert_lesson_to_int(text[1])
+            day = convert_day_to_int(text[0])
+            lesson_time = convert_lesson_to_int(text[1])
 
-        for i in range(2):
-            if text[2+4*i] == text[3+4*i]:  # ДВВС
-                text[3+4*i] = text[4+4*i] = text[5+4*i] = ''
-            if text[4+4*i] == 'Microsoft Teams':
-                text[4+4*i] = 'Teams'
+            for i in range(2):
+                if text[2+4*i] == text[3+4*i]:  # ДВВС
+                    text[3+4*i] = text[4+4*i] = text[5+4*i] = ''
+                if text[4+4*i] == 'Microsoft Teams':
+                    text[4+4*i] = 'Teams'
 
-            if text[2+4*i]:
-                name = text[2+4*i]
-                teacher = clean_teacher(text[5+4*i])
-                lesson_type = text[3+4*i]
-                room = text[4+4*i]
+                if text[2+4*i]:
+                    name = text[2+4*i]
+                    teacher = clean_teacher(text[5+4*i])
+                    lesson_type = text[3+4*i]
+                    room = text[4+4*i]
 
-                group_event_id = add_lesson({
-                    'name': lesson_type + name,
-                    'when': lesson_time,
-                    'day': day,
-                    'where': room,
-                    'description': teacher
-                })
-                teacher_event_id = add_lesson({
-                    'name': lesson_type + name,
-                    'when': lesson_time,
-                    'day': day,
-                    'where': room,
-                    'description': group[i]
-                })
+                    group_event_id = add_lesson({
+                        'name': lesson_type + name,
+                        'when': lesson_time,
+                        'day': day,
+                        'where': room,
+                        'description': teacher,
+                        'is_upper_week': is_upper_week
+                    })
+                    teacher_event_id = add_lesson({
+                        'name': lesson_type + name,
+                        'when': lesson_time,
+                        'day': day,
+                        'where': room,
+                        'description': group[i],
+                        'is_upper_week': is_upper_week
+                    })
 
-                lesson = Lesson_model(day=day, lesson_time=lesson_time, group=group[i],
-                                      name=name, lesson_type=lesson_type,
-                                      room=room, teacher=teacher,
-                                      teacher_event_id=teacher_event_id,
-                                      group_event_id=group_event_id)
-                db.session.add(lesson)
+                    lesson = Lesson_model(day=day, lesson_time=lesson_time, group=group[i],
+                                          name=name, lesson_type=lesson_type,
+                                          room=room, teacher=teacher,
+                                          teacher_event_id=teacher_event_id,
+                                          group_event_id=group_event_id,
+                                          is_upper_week=is_upper_week)
+                    db.session.add(lesson)
     db.session.commit()
 
 
@@ -141,13 +146,16 @@ def print_db():
 
 def group_schedule(group):
     schedule_list = Lesson_model.query.filter_by(group=group).all()
-    table_schedule = create_empty_schedule()
+    table_schedule_upper = create_empty_schedule()
+    table_schedule_lower = create_empty_schedule()
     for lesson in schedule_list:
-        table_schedule[lesson.lesson_time][lesson.day] = Lesson(name=lesson.name,
-                                                                for_whom=lesson.teacher,
-                                                                lesson_type=lesson.lesson_type,
-                                                                classroom=lesson.room)
-    return table_schedule
+        new_lesson_model = Lesson(name=lesson.name, for_whom=lesson.teacher,
+                                  lesson_type=lesson.lesson_type, classroom=lesson.room)
+        if lesson.is_upper_week:
+            table_schedule_upper[lesson.lesson_time][lesson.day] = new_lesson_model
+        else:
+            table_schedule_lower[lesson.lesson_time][lesson.day] = new_lesson_model
+    return table_schedule_upper, table_schedule_lower
 
 
 def teacher_schedule(teacher):

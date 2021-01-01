@@ -6,6 +6,7 @@
     </head>
     <body>
         <h1>Розклад {{schedule_for.name}}</h1>
+        <h2>Верхній тиждень</h2>
         <table>
             <thead>
                 <tr>
@@ -16,17 +17,50 @@
                 </tr>
             </thead>
             <tbody>
-                {% for lesson in range(table | length) %}
+                {% for lesson in range(upper_table | length) %}
                 <tr>
                     <th>{{time[lesson]}}</th>
-                    {% for day in range(table[lesson] | length) %}
-                        {% if table[lesson][day] %}
+                    {% for day in range(upper_table[lesson] | length) %}
+                        {% if upper_table[lesson][day] %}
                         <td class="lessontd">
                             <div class="lessondiv">
-                                <p class="classname">{{ table[lesson][day].name }}</p>
-                                <p>{{ table[lesson][day].for_whom }}</p>
-                                {% if table[lesson][day].classroom %}
-                                    <p>[{{ table[lesson][day].lesson_type }}] ауд. {{ table[lesson][day].classroom }}</p>
+                                <p class="classname">{{ upper_table[lesson][day].name }}</p>
+                                <p>{{ upper_table[lesson][day].for_whom }}</p>
+                                {% if upper_table[lesson][day].classroom %}
+                                    <p>[{{ upper_table[lesson][day].lesson_type }}] ауд. {{ upper_table[lesson][day].classroom }}</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                        {% else %}
+                        <td class="emptytd"></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Нижній тиждень</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%"></th>
+                    {% for day in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'] %}
+                    <th style="width: 15%">{{day}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson in range(lower_table | length) %}
+                <tr>
+                    <th>{{time[lesson]}}</th>
+                    {% for day in range(lower_table[lesson] | length) %}
+                        {% if lower_table[lesson][day] %}
+                        <td class="lessontd">
+                            <div class="lessondiv">
+                                <p class="classname">{{ lower_table[lesson][day].name }}</p>
+                                <p>{{ lower_table[lesson][day].for_whom }}</p>
+                                {% if lower_table[lesson][day].classroom %}
+                                    <p>[{{ lower_table[lesson][day].lesson_type }}] ауд. {{ lower_table[lesson][day].classroom }}</p>
                                 {% endif %}
                             </div>
                         </td>

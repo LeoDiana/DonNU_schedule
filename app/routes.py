@@ -36,12 +36,16 @@ def handle_data():
 def group(group_name):
     group_name = group_name.replace('!', r'/')
     schedule_for = {'name': f'групи {group_name}'}
-    schedule = group_schedule(group_name)
-    return render_template('schedule.html', schedule_for=schedule_for, table=schedule, time=lessons_time)
+    upper_schedule, lower_schedule = group_schedule(group_name)
+    return render_template('schedule.html', schedule_for=schedule_for,
+                           upper_table=upper_schedule, lower_table=lower_schedule,
+                           time=lessons_time)
 
 
 @sapp.route('/teacher/<teacher_name>')
 def teacher(teacher_name):
     schedule_for = {'name': f'{teacher_name}'}
-    schedule = teacher_schedule(teacher_name)
-    return render_template('schedule.html', schedule_for=schedule_for, table=schedule, time=lessons_time)
+    upper_schedule, lower_schedule = teacher_schedule(teacher_name)
+    return render_template('schedule.html', schedule_for=schedule_for,
+                           upper_table=upper_schedule, lower_table=lower_schedule,
+                           time=lessons_time)
